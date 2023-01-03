@@ -1,0 +1,7 @@
+{
+  "name": "Dude, Where's My Car?",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
