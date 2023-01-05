@@ -1,38 +1,40 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 import {GoogleMap} from '@capacitor/google-maps';
-import {environment} from "../../../environments/environment";
+import {Position} from '@capacitor/geolocation';
+import {environment} from '../../../environments/environment';
+import {GeolocationService} from '../../services/geolocation.service';
 
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
-export class MapComponent implements OnInit, AfterViewInit {
+export class MapComponent implements AfterViewInit {
 
   @ViewChild('map') mapRef: ElementRef<HTMLElement>;
   newMap: GoogleMap;
 
-  constructor() {
-  }
-
-  ngOnInit() {
-    console.log(environment.googleMapsApiKey)
-  }
+  constructor(
+    private geolocation: GeolocationService
+  ) { }
 
   ngAfterViewInit() {
-    this.createMap();
+    this.geolocation.getCurrentPosition$().subscribe(position => {
+        this.createMap(position);
+      }
+    );
   }
 
-  async createMap() {
+  async createMap(coords: Position) {
     this.newMap = await GoogleMap.create({
-      id: 'my-cool-map',
+      id: 'map',
       element: this.mapRef.nativeElement,
       apiKey: environment.googleMapsApiKey,
       forceCreate: true,
       config: {
         center: {
-          lat: 33.6,
-          lng: -117.9,
+          lat: coords.coords.latitude,
+          lng: coords.coords.longitude,
         },
         zoom: 8,
       },
@@ -40,8 +42,8 @@ export class MapComponent implements OnInit, AfterViewInit {
 
     const markerId = await this.newMap.addMarker({
       coordinate: {
-        lat: 33.6,
-        lng: -117.9
+        lat: coords.coords.latitude,
+        lng: coords.coords.longitude,
       }
     });
   }

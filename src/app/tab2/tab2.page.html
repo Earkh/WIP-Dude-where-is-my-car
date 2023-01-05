@@ -13,5 +13,8 @@
     </ion-toolbar>
   </ion-header>
 
-  <app-map></app-map>
+  <app-map *ngIf="isLocationLoaded; else isLoading"></app-map>
+  <ng-template #isLoading>
+    <app-loading-screen></app-loading-screen>
+  </ng-template>
 </ion-content>
