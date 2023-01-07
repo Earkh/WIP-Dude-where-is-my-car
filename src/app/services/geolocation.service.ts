@@ -8,14 +8,19 @@ import {BehaviorSubject, Observable} from 'rxjs';
 export class GeolocationService {
 
   private currentPosition: Position | any;
-  private _currentPosition$ = new BehaviorSubject<Position | null>(null);
+  private _currentPosition$ = new BehaviorSubject<Position | any>(null);
 
   constructor() {
   }
 
   async setCurrentPosition() {
-    this.currentPosition = await Geolocation.getCurrentPosition();
-    this._currentPosition$.next(this.currentPosition);
+    try {
+      this.currentPosition = await Geolocation.getCurrentPosition();
+      this._currentPosition$.next(this.currentPosition);
+    } catch (e) {
+      console.error(e);
+      this._currentPosition$.next(e);
+    }
   };
 
   getCurrentPosition$(): Observable<any> {

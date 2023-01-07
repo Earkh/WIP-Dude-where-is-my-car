@@ -13,8 +13,9 @@
     </ion-toolbar>
   </ion-header>
 
-  <app-map *ngIf="isLocationLoaded; else isLoading"></app-map>
-  <ng-template #isLoading>
-    <app-loading-screen></app-loading-screen>
-  </ng-template>
+  <ng-container [ngSwitch]="responseIs">
+    <app-map *ngSwitchCase="'map'"></app-map>
+    <app-error-screen *ngSwitchCase="'error'"></app-error-screen>
+    <app-loading-screen *ngSwitchDefault></app-loading-screen>
+  </ng-container>
 </ion-content>
