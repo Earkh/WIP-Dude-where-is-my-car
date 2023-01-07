@@ -20,9 +20,8 @@ export class MapComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.geolocation.getCurrentPosition$().subscribe(position => {
-        this.createMap(position);
-      }
-    );
+      this.createMap(position);
+    });
   }
 
   async createMap(coords: Position) {

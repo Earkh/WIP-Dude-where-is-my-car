@@ -8,7 +8,7 @@ import {GeolocationService} from '../services/geolocation.service';
 })
 export class Tab2Page implements OnInit {
 
-  isLocationLoaded: boolean = false;
+  responseIs: string = 'loading';
 
   constructor(
     private geolocation: GeolocationService
@@ -18,9 +18,11 @@ export class Tab2Page implements OnInit {
 
   ngOnInit() {
     this.geolocation.getCurrentPosition$().subscribe(position => {
-        position
-          ? this.isLocationLoaded = true
-          : this.isLocationLoaded = false
+        !position
+          ? this.responseIs = 'loading'
+          : position.coords
+            ? this.responseIs = 'map'
+            : this.responseIs = 'error'
       }
     );
   }
