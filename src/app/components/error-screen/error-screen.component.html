@@ -2,21 +2,23 @@
   <ion-card class="border-danger">
     <ion-grid>
       <ion-row>
-        <ion-col size="2" class="ion-align-items-center">
+        <ion-col size="3" class="ion-align-items-center">
           <div class="centered-screen">
             <ion-icon name="warning-outline" size="large"></ion-icon>
           </div>
         </ion-col>
-        <ion-col size="10">
+        <ion-col size="9">
           <ion-card-header>
-            <ion-card-title>ERROR</ion-card-title>
+            <ion-card-title >Error <span *ngIf="error?.code">Code #{{error.code}}</span> </ion-card-title>
           </ion-card-header>
 
           <ion-card-content>
-            User denied geolocation prompt
+            <p *ngIf="error?.message">{{error.message}}</p>
           </ion-card-content>
 
-          <ion-button fill="clear">Action</ion-button>
+          <footer class="flex ion-justify-content-end">
+            <ion-button fill="clear">Action</ion-button>
+          </footer>
         </ion-col>
       </ion-row>
     </ion-grid>
