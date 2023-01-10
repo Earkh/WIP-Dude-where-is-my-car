@@ -29,4 +29,20 @@ export class GeolocationService {
   getCurrentPosition$(): Observable<any> {
     return this._currentPosition$.asObservable();
   }
+
+  setParking() {
+    const parking = {
+      ...this.currentPosition,
+      date: new Date,
+    }
+  }
+
+  setParkingWithComment(comment: string) {
+    const parking = {
+      location: this.currentPosition,
+      date: new Date,
+      comment
+    }
+  }
+
 }

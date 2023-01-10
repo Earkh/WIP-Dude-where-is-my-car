@@ -17,6 +17,10 @@ export class Tab2Page implements OnInit {
   }
 
   ngOnInit() {
+    this.getCurrentPosition();
+  }
+
+  getCurrentPosition() {
     this.geolocation.getCurrentPosition$().subscribe(position => {
         !position
           ? this.responseIs = 'loading'
@@ -27,4 +31,16 @@ export class Tab2Page implements OnInit {
     );
   }
 
+  refreshLocation() {
+    this.geolocation.setCurrentPosition();
+    this.getCurrentPosition();
+  }
+
+  setParking() {
+    this.geolocation.setParking();
+  }
+
+  setParkingWithComments() {
+    this.geolocation.setParkingWithComment('test');
+  }
 }
