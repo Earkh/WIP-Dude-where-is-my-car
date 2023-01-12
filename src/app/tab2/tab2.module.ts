@@ -6,7 +6,6 @@ import {Tab2Page} from './tab2.page';
 import {Tab2PageRoutingModule} from './tab2-routing.module';
 import {MapModule} from '../components/map/map.module';
 import {LoadingScreenModule} from '../components/loading-screen/loading-screen.module';
-import {ErrorScreenModule} from '../components/error-screen/error-screen.module';
 
 @NgModule({
   imports: [
@@ -15,8 +14,7 @@ import {ErrorScreenModule} from '../components/error-screen/error-screen.module'
     IonicModule,
     LoadingScreenModule,
     MapModule,
-    Tab2PageRoutingModule,
-    ErrorScreenModule
+    Tab2PageRoutingModule
   ],
   declarations: [Tab2Page]
 })

@@ -30,9 +30,8 @@
     </ion-fab-list>
   </ion-fab>
 
-  <ng-container [ngSwitch]="responseIs">
-    <app-map *ngSwitchCase="'map'"></app-map>
-    <app-error-screen *ngSwitchCase="'error'"></app-error-screen>
-    <app-loading-screen *ngSwitchDefault></app-loading-screen>
-  </ng-container>
+  <app-map *ngIf="!isLoading; else loadingScreen"></app-map>
+  <ng-template #loadingScreen>
+    <app-loading-screen></app-loading-screen>
+  </ng-template>
 </ion-content>
