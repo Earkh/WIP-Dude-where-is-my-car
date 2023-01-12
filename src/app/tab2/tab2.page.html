@@ -13,9 +13,25 @@
     </ion-toolbar>
   </ion-header>
 
-  <ng-container [ngSwitch]="responseIs">
-    <app-map *ngSwitchCase="'map'"></app-map>
-    <app-error-screen *ngSwitchCase="'error'"></app-error-screen>
-    <app-loading-screen *ngSwitchDefault></app-loading-screen>
-  </ng-container>
+  <ion-fab slot="fixed" vertical="bottom" horizontal="start">
+    <ion-fab-button color="primary">
+      <ion-icon name="chevron-up"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="top">
+      <ion-fab-button (click)="setParkingWithComments()">
+        <ion-icon name="chatbubble-ellipses" color="success"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button (click)="setParking()">
+        <ion-icon name="location" color="danger"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button (click)="refreshLocation()">
+        <ion-icon name="locate" color="dark"></ion-icon>
+      </ion-fab-button>
+    </ion-fab-list>
+  </ion-fab>
+
+  <app-map *ngIf="!isLoading; else loadingScreen"></app-map>
+  <ng-template #loadingScreen>
+    <app-loading-screen></app-loading-screen>
+  </ng-template>
 </ion-content>
