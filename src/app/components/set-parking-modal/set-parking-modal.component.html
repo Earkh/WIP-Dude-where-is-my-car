@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Aparcar aquí</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="closeWithoutChanges()">
+        <ion-icon size="large" name="close-outline" color="dark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<main>
+  <ion-list>
+    <ion-item [formGroup]="parkingForm" lines="none">
+      <ion-label position="stacked">Comentario</ion-label>
+      <ion-textarea formControlName="comment" rows="3" autoGrow="false" maxlength="80"></ion-textarea>
+    </ion-item>
+
+  </ion-list>
+</main>
+
+<ion-footer>
+  <ion-toolbar class="flex ion-justify-content-center ion-align-items-center">
+    <ion-button expand="block" class="ion-activatable ripple-parent" (click)="setParking()">
+      <ion-text>Guardar</ion-text>
+      <ion-ripple-effect></ion-ripple-effect>
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

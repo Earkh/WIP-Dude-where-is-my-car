@@ -1,7 +1,7 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
 import {GoogleMap} from '@capacitor/google-maps';
 import {Position} from '@capacitor/geolocation';
-import {Observable, Subscription} from 'rxjs';
+import {BehaviorSubject, map, Observable, Subscription, tap} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {GeolocationService} from '../../services/geolocation.service';
 import {Parking} from '../../tab2/tab2.page';
@@ -11,14 +11,14 @@ import {Parking} from '../../tab2/tab2.page';
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
-export class MapComponent implements OnInit, OnDestroy {
+export class MapComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('map') mapRef: ElementRef<HTMLElement>;
-  newMap: GoogleMap;
+  googleMap: GoogleMap;
   parking$: Observable<Parking[]>;
   parkingSubs: Subscription;
   parking: Parking;
-  currentPosition$: Observable<Position|null>;
+  currentPosition$: BehaviorSubject<Position|null>;
   currentPositionSubs: Subscription;
   currentPosition: Position|null;
 
@@ -26,27 +26,41 @@ export class MapComponent implements OnInit, OnDestroy {
     private geolocation: GeolocationService
   ) { }
 
-  ngOnInit() {
+  ngAfterViewInit() {
     this.parking$ = this.geolocation.getParkings();
     this.currentPosition$ = this.geolocation.getCurrentPosition();
-    this.parkingSubs = this.parking$.subscribe(parking => {
-      this.parking = parking[0];
-      this.createMap(this.parking);
-    })
-    this.currentPositionSubs = this.currentPosition$.subscribe(position => {
+    this.currentPositionSubs = this.currentPosition$.pipe(
+      tap(position => {
+        if (position) {
+          this.createMap({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+            timestamp: position.timestamp
+          });
+        }
+      })
+    ).subscribe(position => {
       this.currentPosition = position;
-      if (this.currentPosition && !this.parking) {
-        this.createMap({
-          lat: this.currentPosition!.coords.latitude,
-          lon: this.currentPosition!.coords.longitude,
-          timestamp: this.currentPosition!.timestamp
-        });
-      }
+    })
+    this.parkingSubs = this.parking$.pipe(
+      map(parking => parking[0]),
+      tap(parking => {
+        if (parking) {
+          this.createMap({
+            lat: parking.lat,
+            lon: parking.lon,
+            timestamp: parking.timestamp,
+            comment: parking.comment
+          });
+        }
+      })
+    ).subscribe(parking => {
+      this.parking = parking;
     })
   }
 
   async createMap(coords: Parking) {
-    this.newMap = await GoogleMap.create({
+    this.googleMap = await GoogleMap.create({
       id: 'map',
       element: this.mapRef.nativeElement,
       apiKey: environment.googleMapsApiKey,
@@ -60,11 +74,16 @@ export class MapComponent implements OnInit, OnDestroy {
       },
     });
 
-    const markerId = await this.newMap.addMarker({
+    const marker = await this.googleMap.addMarker({
       coordinate: {
         lat: coords.lat,
         lng: coords.lon,
       }
+    });
+
+    await this.googleMap.setOnMarkerClickListener(async (marker) => {
+      console.log(coords);
+      // TODO Add Popover
     });
   }
 

@@ -48,3 +48,9 @@ ion-icon {
 .border-danger {
   border-right: solid .4em var(--ion-color-danger-tint);
 }
+
+.setParkingModal {
+  --border-radius: .5em;
+  --height: auto;
+  --width: 80%;
+}

@@ -1,7 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ModalController} from '@ionic/angular';
 import {Position} from '@capacitor/geolocation';
-import {Observable, Subscription} from 'rxjs';
+import {BehaviorSubject, map, Observable, Subscription, tap} from 'rxjs';
 import {GeolocationService} from '../services/geolocation.service';
+import {SetParkingModalComponent} from '../components/set-parking-modal/set-parking-modal.component';
 
 export interface Parking {
   lat: number,
@@ -20,20 +22,27 @@ export class Tab2Page implements OnInit, OnDestroy {
   parking$: Observable<Parking[]>;
   parkingSubs: Subscription;
   parking: Parking;
-  currentPosition$: Observable<Position|null>;
+  currentPosition$: BehaviorSubject<Position|null>;
   currentPositionSubs: Subscription;
   currentPosition: Position|null;
 
   constructor(
-    private geolocation: GeolocationService
+    private geolocation: GeolocationService,
+    private modalCtrl: ModalController
   ) { }
 
   ngOnInit() {
     this.parking$ = this.geolocation.getParkings();
     this.currentPosition$ = this.geolocation.getCurrentPosition();
-    this.geolocation.init();
-    this.parkingSubs = this.parking$.subscribe(parking => {
-      this.parking = parking[0];
+    this.parkingSubs = this.parking$.pipe(
+      map(response => response[0]),
+      tap(parking => {
+        if(!parking) {
+          this.geolocation.initCurrentPosition();
+        }
+      })
+    ).subscribe(parking => {
+      this.parking = parking;
     })
     this.currentPositionSubs = this.currentPosition$.subscribe(position => {
       this.currentPosition = position;
@@ -44,12 +53,12 @@ export class Tab2Page implements OnInit, OnDestroy {
     await this.geolocation.setCurrentPosition();
   }
 
-  setParking() {
-    // TODO
-  }
-
-  setParkingWithComments() {
-    // TODO
+  async presentSetParkingModal() {
+    const modal = await this.modalCtrl.create({
+      component: SetParkingModalComponent,
+      cssClass: 'setParkingModal',
+    });
+    return await modal.present();
   }
 
   ngOnDestroy(): void {

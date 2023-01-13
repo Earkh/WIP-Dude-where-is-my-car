@@ -23,7 +23,7 @@ export class GeolocationService {
     this.parking$ = this.parkingCollection.valueChanges();
   }
 
-  public async init() {
+  public async initCurrentPosition() {
     const position: Position = await Geolocation.getCurrentPosition();
     this._currentPosition$.next(position);
   }
@@ -32,7 +32,7 @@ export class GeolocationService {
     return this.parking$;
   }
 
-  public getCurrentPosition(): Observable<Position|null> {
+  public getCurrentPosition(): BehaviorSubject<Position|null> {
     return this._currentPosition$;
   }
 
@@ -43,5 +43,9 @@ export class GeolocationService {
       this.error.setCurrentError(e);
     }
   };
+
+  setParking(parking: Parking): void {
+    this.parkingCollection.add(parking);
+  }
 
 }
