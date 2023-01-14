@@ -26,16 +26,22 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private geolocation: GeolocationService
   ) { }
 
+  @ViewChild('popover') popover: any;
+  isOpen = false;
+
   ngAfterViewInit() {
     this.parking$ = this.geolocation.getParkings();
     this.currentPosition$ = this.geolocation.getCurrentPosition();
     this.currentPositionSubs = this.currentPosition$.pipe(
       tap(position => {
         if (position) {
-          this.createMap({
+          const coords = {
             lat: position.coords.latitude,
             lon: position.coords.longitude,
             timestamp: position.timestamp
+          }
+          this.createMap(coords).then(() => {
+            this.addMarker(coords);
           });
         }
       })
@@ -46,11 +52,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       map(parking => parking[0]),
       tap(parking => {
         if (parking) {
-          this.createMap({
+          const coords = {
             lat: parking.lat,
             lon: parking.lon,
             timestamp: parking.timestamp,
             comment: parking.comment
+          }
+          this.createMap(coords).then(() => {
+            this.addMarker(coords); // TODO Custom Marker for Parking
           });
         }
       })
@@ -73,7 +82,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         zoom: 16,
       },
     });
+  }
 
+  async addMarker(coords: Parking) {
     const marker = await this.googleMap.addMarker({
       coordinate: {
         lat: coords.lat,
@@ -82,9 +93,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
 
     await this.googleMap.setOnMarkerClickListener(async (marker) => {
-      console.log(coords);
-      // TODO Add Popover
+      this.isOpen = true;
     });
+  }
+
+  presentPopover(e: Event) {
+    this.popover.event = e;
+    this.isOpen = true;
   }
 
   ngOnDestroy(): void {
