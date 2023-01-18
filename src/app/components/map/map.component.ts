@@ -15,7 +15,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   mapbox = (mapboxgl as typeof mapboxgl);
   map: mapboxgl.Map;
-  style = `mapbox://styles/mapbox/streets-v11`;
+  marker: mapboxgl.Marker;
+  style = `mapbox://styles/mapbox/streets-v12`;
   parking$: Observable<Parking[]>;
   parkingSubs: Subscription;
   parking: Parking;
@@ -68,8 +69,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
   }
 
-  presentPopover(e: Event) {
-    this.popover.event = e;
+  presentPopover() {
     this.isOpen = true;
   }
 
@@ -79,14 +79,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   createMap(coords: Parking) {
-    console.log(coords)
     this.map = new mapboxgl.Map({
       container: 'map',
       style: this.style,
       zoom: this.zoom,
       center: [coords.lon, coords.lat]
     });
-    this.map.addControl(new mapboxgl.NavigationControl());
+    this.map.addControl(new mapboxgl.NavigationControl({showCompass: true, showZoom: true, visualizePitch: true}), 'top-right');
+    this.marker = new mapboxgl.Marker()
+      .setLngLat([coords.lon, coords.lat])
+      .addTo(this.map);
+    this.marker.getElement().addEventListener('click', () => {
+      this.presentPopover();
+    })
+
   }
 
 }
