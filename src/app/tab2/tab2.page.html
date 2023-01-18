@@ -18,7 +18,7 @@
       <ion-icon name="chevron-up"></ion-icon>
     </ion-fab-button>
     <ion-fab-list side="top">
-      <ion-fab-button (click)="presentSetParkingModal()" [disabled]="!currentPosition">
+      <ion-fab-button (click)="presentSetParkingModal()" *ngIf="currentPosition$ | async">
         <ion-icon name="location" color="danger"></ion-icon>
       </ion-fab-button>
       <ion-fab-button (click)="refreshLocation()">

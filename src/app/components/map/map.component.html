@@ -1,1 +1,23 @@
-<capacitor-google-map #map></capacitor-google-map>
+<div id="map" class="map-container"> </div>
+<ion-popover #popover [isOpen]="isOpen" (didDismiss)="isOpen = false">
+  <ng-template>
+    <ion-content class="ion-padding">
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-text>
+              {{parking.comment}}
+            </ion-text>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-content>
+    <ion-footer>
+      <ion-toolbar>
+        <ion-title class="ion-text-center">
+          {{parking.timestamp | date:'dd/MM/yyyy - hh:mm'}}
+        </ion-title>
+      </ion-toolbar>
+    </ion-footer>
+  </ng-template>
+</ion-popover>

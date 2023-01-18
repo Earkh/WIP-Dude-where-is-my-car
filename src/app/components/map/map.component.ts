@@ -1,10 +1,10 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
-import {GoogleMap} from '@capacitor/google-maps';
+import {AfterViewInit, Component, OnDestroy, ViewChild} from '@angular/core';
 import {Position} from '@capacitor/geolocation';
 import {BehaviorSubject, map, Observable, Subscription, tap} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {GeolocationService} from '../../services/geolocation.service';
 import {Parking} from '../../tab2/tab2.page';
+import * as mapboxgl from "mapbox-gl";
 
 @Component({
   selector: 'app-map',
@@ -13,18 +13,26 @@ import {Parking} from '../../tab2/tab2.page';
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
 
-  @ViewChild('map') mapRef: ElementRef<HTMLElement>;
-  googleMap: GoogleMap;
+  mapbox = (mapboxgl as typeof mapboxgl);
+  map: mapboxgl.Map;
+  marker: mapboxgl.Marker;
+  style = `mapbox://styles/mapbox/streets-v12`;
   parking$: Observable<Parking[]>;
   parkingSubs: Subscription;
   parking: Parking;
   currentPosition$: BehaviorSubject<Position|null>;
   currentPositionSubs: Subscription;
   currentPosition: Position|null;
+  zoom = 15;
 
   constructor(
     private geolocation: GeolocationService
-  ) { }
+  ) {
+    this.mapbox.accessToken = environment.mapBoxToken;
+  }
+
+  @ViewChild('popover') popover: any;
+  isOpen = false;
 
   ngAfterViewInit() {
     this.parking$ = this.geolocation.getParkings();
@@ -32,11 +40,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.currentPositionSubs = this.currentPosition$.pipe(
       tap(position => {
         if (position) {
-          this.createMap({
+          const coords = {
             lat: position.coords.latitude,
             lon: position.coords.longitude,
             timestamp: position.timestamp
-          });
+          }
+          this.map.setCenter(coords)
         }
       })
     ).subscribe(position => {
@@ -46,12 +55,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       map(parking => parking[0]),
       tap(parking => {
         if (parking) {
-          this.createMap({
+          const coords = {
             lat: parking.lat,
             lon: parking.lon,
             timestamp: parking.timestamp,
             comment: parking.comment
-          });
+          }
+          this.createMap(coords);
         }
       })
     ).subscribe(parking => {
@@ -59,37 +69,30 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     })
   }
 
-  async createMap(coords: Parking) {
-    this.googleMap = await GoogleMap.create({
-      id: 'map',
-      element: this.mapRef.nativeElement,
-      apiKey: environment.googleMapsApiKey,
-      forceCreate: true,
-      config: {
-        center: {
-          lat: coords.lat,
-          lng: coords.lon,
-        },
-        zoom: 16,
-      },
-    });
-
-    const marker = await this.googleMap.addMarker({
-      coordinate: {
-        lat: coords.lat,
-        lng: coords.lon,
-      }
-    });
-
-    await this.googleMap.setOnMarkerClickListener(async (marker) => {
-      console.log(coords);
-      // TODO Add Popover
-    });
+  presentPopover() {
+    this.isOpen = true;
   }
 
   ngOnDestroy(): void {
     this.currentPositionSubs.unsubscribe();
     this.parkingSubs.unsubscribe();
+  }
+
+  createMap(coords: Parking) {
+    this.map = new mapboxgl.Map({
+      container: 'map',
+      style: this.style,
+      zoom: this.zoom,
+      center: [coords.lon, coords.lat]
+    });
+    this.map.addControl(new mapboxgl.NavigationControl({showCompass: true, showZoom: true, visualizePitch: true}), 'top-right');
+    this.marker = new mapboxgl.Marker()
+      .setLngLat([coords.lon, coords.lat])
+      .addTo(this.map);
+    this.marker.getElement().addEventListener('click', () => {
+      this.presentPopover();
+    })
+
   }
 
 }

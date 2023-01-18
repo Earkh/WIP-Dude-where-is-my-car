@@ -1,5 +1,11 @@
-capacitor-google-map {
-  display: inline-block;
-  height: 100%;
+.map-container {
   width: 100%;
+  height: 100%;
+}
+
+ion-popover {
+  --width: 90%;
+  ion-content, ion-footer {
+    border-right: solid .4em var(--ion-color-primary);
+  }
 }

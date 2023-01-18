@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  googleMapsApiKey: 'YOUR_GOOGLE_MAPS_API_KEY'
+  mapBoxToken: 'YOUR_MAPS_BOX_API_KEY'
 };
 
 /*
