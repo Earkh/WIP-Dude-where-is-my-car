@@ -1,5 +1,5 @@
-<div id="map" class="map-container"> </div>
-<ion-popover #popover [isOpen]="isOpen" (didDismiss)="isOpen = false">
+<div id="map" class="map-container"></div>
+<ion-popover #popover [isOpen]="(isPopoverOpen$ | async) || false" (didDismiss)="togglePopover()">
   <ng-template>
     <ion-content class="ion-padding">
       <ion-grid>

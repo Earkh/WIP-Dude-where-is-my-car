@@ -18,6 +18,9 @@
       <ion-icon name="chevron-up"></ion-icon>
     </ion-fab-button>
     <ion-fab-list side="top">
+      <ion-fab-button (click)="navigateToCar()" *ngIf="parking$ | async">
+        <ion-icon name="car" color="success"></ion-icon>
+      </ion-fab-button>
       <ion-fab-button (click)="presentSetParkingModal()" *ngIf="currentPosition$ | async">
         <ion-icon name="location" color="danger"></ion-icon>
       </ion-fab-button>

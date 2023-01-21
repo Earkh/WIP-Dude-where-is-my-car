@@ -3,6 +3,7 @@ import {ModalController} from '@ionic/angular';
 import {Position} from '@capacitor/geolocation';
 import {BehaviorSubject, map, Observable, Subscription, tap} from 'rxjs';
 import {GeolocationService} from '../services/geolocation.service';
+import {MapService} from '../services/map.service';
 import {SetParkingModalComponent} from '../components/set-parking-modal/set-parking-modal.component';
 
 export interface Parking {
@@ -22,22 +23,24 @@ export class Tab2Page implements OnInit, OnDestroy {
   parking$: Observable<Parking[]>;
   parkingSubs: Subscription;
   parking: Parking;
-  currentPosition$: BehaviorSubject<Position|null>;
+  currentPosition$: BehaviorSubject<Position | null>;
   currentPositionSubs: Subscription;
-  currentPosition: Position|null;
+  currentPosition: Position | null;
 
   constructor(
     private geolocation: GeolocationService,
+    private mapService: MapService,
     private modalCtrl: ModalController
-  ) { }
+  ) {
+  }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.parking$ = this.geolocation.getParkings();
     this.currentPosition$ = this.geolocation.getCurrentPosition();
     this.parkingSubs = this.parking$.pipe(
       map(response => response[0]),
       tap(parking => {
-        if(!parking) {
+        if (!parking) {
           this.geolocation.initCurrentPosition();
         }
       })
@@ -49,16 +52,20 @@ export class Tab2Page implements OnInit, OnDestroy {
     })
   }
 
-  async refreshLocation() {
+  async refreshLocation(): Promise<void> {
     await this.geolocation.setCurrentPosition();
   }
 
-  async presentSetParkingModal() {
+  async presentSetParkingModal(): Promise<void> {
     const modal = await this.modalCtrl.create({
       component: SetParkingModalComponent,
       cssClass: 'setParkingModal',
     });
     return await modal.present();
+  }
+
+  navigateToCar(): void {
+    this.mapService.navigateToCar(this.parking)
   }
 
   ngOnDestroy(): void {
