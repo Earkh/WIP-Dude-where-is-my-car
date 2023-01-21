@@ -1,10 +1,9 @@
-import {AfterViewInit, Component, OnDestroy, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
 import {Position} from '@capacitor/geolocation';
 import {BehaviorSubject, map, Observable, Subscription, tap} from 'rxjs';
-import {environment} from '../../../environments/environment';
+import {MapService} from '../../services/map.service';
 import {GeolocationService} from '../../services/geolocation.service';
 import {Parking} from '../../tab2/tab2.page';
-import * as mapboxgl from "mapbox-gl";
 
 @Component({
   selector: 'app-map',
@@ -13,28 +12,21 @@ import * as mapboxgl from "mapbox-gl";
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
 
-  mapbox = (mapboxgl as typeof mapboxgl);
-  map: mapboxgl.Map;
-  marker: mapboxgl.Marker;
-  style = `mapbox://styles/mapbox/streets-v12`;
+  @ViewChild('popover') popover: ElementRef<HTMLCanvasElement>;
+  isPopoverOpen$: BehaviorSubject<boolean>;
   parking$: Observable<Parking[]>;
   parkingSubs: Subscription;
   parking: Parking;
-  currentPosition$: BehaviorSubject<Position|null>;
+  currentPosition$: BehaviorSubject<Position | null>;
   currentPositionSubs: Subscription;
-  currentPosition: Position|null;
-  zoom = 15;
+  currentPosition: Position | null;
 
   constructor(
-    private geolocation: GeolocationService
-  ) {
-    this.mapbox.accessToken = environment.mapBoxToken;
-  }
+    private geolocation: GeolocationService,
+    private mapService: MapService
+  ) { }
 
-  @ViewChild('popover') popover: any;
-  isOpen = false;
-
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.parking$ = this.geolocation.getParkings();
     this.currentPosition$ = this.geolocation.getCurrentPosition();
     this.currentPositionSubs = this.currentPosition$.pipe(
@@ -45,7 +37,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             lon: position.coords.longitude,
             timestamp: position.timestamp
           }
-          this.map.setCenter(coords)
+          this.mapService.centerMap(coords)
         }
       })
     ).subscribe(position => {
@@ -61,38 +53,30 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             timestamp: parking.timestamp,
             comment: parking.comment
           }
-          this.createMap(coords);
+          this.mapService.createMap(coords);
         }
       })
     ).subscribe(parking => {
       this.parking = parking;
     })
+    this.isPopoverOpen$ = this.mapService.getIsPopoverOpen();
   }
 
-  presentPopover() {
-    this.isOpen = true;
+  createMap(coords: Parking): void {
+    this.mapService.createMap(coords);
+  }
+
+  centerMap(coords: Parking): void {
+    this.mapService.centerMap(coords)
+  }
+
+  togglePopover(): void {
+    this.mapService.togglePopover()
   }
 
   ngOnDestroy(): void {
     this.currentPositionSubs.unsubscribe();
     this.parkingSubs.unsubscribe();
-  }
-
-  createMap(coords: Parking) {
-    this.map = new mapboxgl.Map({
-      container: 'map',
-      style: this.style,
-      zoom: this.zoom,
-      center: [coords.lon, coords.lat]
-    });
-    this.map.addControl(new mapboxgl.NavigationControl({showCompass: true, showZoom: true, visualizePitch: true}), 'top-right');
-    this.marker = new mapboxgl.Marker()
-      .setLngLat([coords.lon, coords.lat])
-      .addTo(this.map);
-    this.marker.getElement().addEventListener('click', () => {
-      this.presentPopover();
-    })
-
   }
 
 }

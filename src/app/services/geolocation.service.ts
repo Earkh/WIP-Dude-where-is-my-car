@@ -18,12 +18,12 @@ export class GeolocationService {
     private error: ErrorService,
     private firestore: AngularFirestore
   ) {
-    this._currentPosition$ = new BehaviorSubject<Position|null>(null);
+    this._currentPosition$ = new BehaviorSubject<Position | null>(null);
     this.parkingCollection = firestore.collection<Parking>('parkings');
     this.parking$ = this.parkingCollection.valueChanges();
   }
 
-  public async initCurrentPosition() {
+  public async initCurrentPosition(): Promise<void> {
     const position: Position = await Geolocation.getCurrentPosition();
     this._currentPosition$.next(position);
   }
@@ -32,13 +32,21 @@ export class GeolocationService {
     return this.parking$;
   }
 
-  public getCurrentPosition(): BehaviorSubject<Position|null> {
+  public getCurrentPosition(): BehaviorSubject<Position | null> {
     return this._currentPosition$;
   }
 
-  async setCurrentPosition() {
+  async setCurrentPosition(): Promise<void> {
     try {
       this._currentPosition$.next(await Geolocation.getCurrentPosition());
+    } catch (e: any) {
+      this.error.setCurrentError(e);
+    }
+  };
+
+  resetCurrentPosition(): void {
+    try {
+      this._currentPosition$.next(null);
     } catch (e: any) {
       this.error.setCurrentError(e);
     }
