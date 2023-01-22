@@ -20,6 +20,7 @@
     "@angular/platform-browser": "^15.0.0",
     "@angular/platform-browser-dynamic": "^15.0.0",
     "@angular/router": "^15.0.0",
+    "@awesome-cordova-plugins/launch-navigator": "^6.3.0",
     "@capacitor/android": "4.6.1",
     "@capacitor/app": "4.1.1",
     "@capacitor/core": "4.6.1",
@@ -28,11 +29,14 @@
     "@capacitor/keyboard": "4.1.0",
     "@capacitor/status-bar": "4.1.1",
     "@ionic/angular": "^6.1.9",
+    "cordova-plugin-actionsheet": "^2.3.3",
+    "cordova-plugin-dialogs": "^2.0.2",
     "firebase": "^9.15.0",
     "ionicons": "^6.0.3",
     "mapbox-gl": "^2.12.0",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
+    "uk.co.workingedge.phonegap.plugin.launchnavigator": "^5.0.6",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {

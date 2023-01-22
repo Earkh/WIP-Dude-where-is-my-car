@@ -4,6 +4,7 @@ import {BehaviorSubject, map, Observable, Subscription, tap} from 'rxjs';
 import {MapService} from '../../services/map.service';
 import {GeolocationService} from '../../services/geolocation.service';
 import {Parking} from '../../tab2/tab2.page';
+import {LaunchNavigator, LaunchNavigatorOptions} from '@awesome-cordova-plugins/launch-navigator/ngx';
 
 @Component({
   selector: 'app-map',
@@ -23,7 +24,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private geolocation: GeolocationService,
-    private mapService: MapService
+    private mapService: MapService,
+    private launchNavigator: LaunchNavigator
   ) { }
 
   ngAfterViewInit(): void {
@@ -72,6 +74,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   togglePopover(): void {
     this.mapService.togglePopover()
+  }
+
+  howToReach() {
+    this.launchNavigator.navigate([this.parking.lat, this.parking.lon]);
   }
 
   ngOnDestroy(): void {
